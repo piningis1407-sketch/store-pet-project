@@ -1,4 +1,4 @@
-package exception;
+package com.iharshashkou.internetstore.exception;
 
 public class UserNotFoundException extends RuntimeException{
     public UserNotFoundException(Long id) {

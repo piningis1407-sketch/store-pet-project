@@ -1,15 +1,15 @@
-package service;
+package com.iharshashkou.internetstore.service;
 
-import DTO.UserRequest;
-import DTO.UserResponse;
-import entity.UserEntity;
-import exception.UserNotFoundException;
+import com.iharshashkou.internetstore.DTO.UserRequest;
+import com.iharshashkou.internetstore.DTO.UserResponse;
+import com.iharshashkou.internetstore.entity.UserEntity;
+import com.iharshashkou.internetstore.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
-import mapper.UserMapper;
+import com.iharshashkou.internetstore.mapper.UserMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import repository.UserRepository;
+import com.iharshashkou.internetstore.repository.UserRepository;
 
 import java.util.List;
 

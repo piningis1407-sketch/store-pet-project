@@ -1,6 +1,6 @@
-package repository;
+package com.iharshashkou.internetstore.repository;
 
-import entity.UserEntity;
+import com.iharshashkou.internetstore.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

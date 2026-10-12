@@ -1,4 +1,4 @@
-package DTO;
+package com.iharshashkou.internetstore.DTO;
 
 import java.time.Instant;
 

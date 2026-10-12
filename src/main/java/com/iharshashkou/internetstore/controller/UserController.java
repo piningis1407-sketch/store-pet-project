@@ -1,12 +1,13 @@
-package controller;
+package com.iharshashkou.internetstore.controller;
 
-import DTO.UserRequest;
-import DTO.UserResponse;
+import com.iharshashkou.internetstore.DTO.UserRequest;
+import com.iharshashkou.internetstore.DTO.UserResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import service.UserService;
+import com.iharshashkou.internetstore.service.UserService;
 
 import java.util.List;
 
@@ -43,6 +44,7 @@ public class UserController {
         return userService.update(id, request);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {

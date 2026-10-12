@@ -1,9 +1,11 @@
-package mapper;
+package com.iharshashkou.internetstore.mapper;
 
-import DTO.UserRequest;
-import DTO.UserResponse;
-import entity.UserEntity;
+import com.iharshashkou.internetstore.DTO.UserRequest;
+import com.iharshashkou.internetstore.DTO.UserResponse;
+import com.iharshashkou.internetstore.entity.UserEntity;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserMapper {
     public UserEntity toEntity(UserRequest request) {
         return UserEntity.builder()
