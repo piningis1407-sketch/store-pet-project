@@ -4,7 +4,9 @@ import com.iharshashkou.internetstore.DTO.AuthResponse;
 import com.iharshashkou.internetstore.DTO.LoginRequest;
 import com.iharshashkou.internetstore.DTO.RegisterRequest;
 import com.iharshashkou.internetstore.DTO.Role;
+import com.iharshashkou.internetstore.entity.RefreshTokenEntity;
 import com.iharshashkou.internetstore.entity.UserEntity;
+import com.iharshashkou.internetstore.repository.RefreshTokenRepository;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.iharshashkou.internetstore.repository.UserRepository;
 import com.iharshashkou.internetstore.security.JwtService;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -28,6 +32,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtService jwtService;
 
     @Transactional
@@ -78,6 +83,14 @@ public class AuthService {
         String accessToken = jwtService.generateToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
+        RefreshTokenEntity entity = new RefreshTokenEntity(
+                jwtService.extractTokenId(refreshToken),
+                userDetails.getUsername(),
+                jwtService.extractExpiration(refreshToken)
+        );
+
+        refreshTokenRepository.save(entity);
+
         return new AuthResponse(
                 accessToken,
                 refreshToken,
@@ -85,28 +98,75 @@ public class AuthService {
         );
     }
 
+    @Transactional
     public AuthResponse refresh(String refreshToken) {
         try {
             if (!jwtService.isRefreshTokenValid(refreshToken)) {
-                throw new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED,
-                        "Invalid refresh token"
-                );
+                throw unauthorized();
             }
 
-            String email = jwtService.extractUsername(refreshToken);
+            String tokenId = jwtService.extractTokenId(refreshToken);
 
+            RefreshTokenEntity storedToken = refreshTokenRepository
+                    .findByTokenId(tokenId)
+                    .orElseThrow(this::unauthorized);
+
+            if (!storedToken.isActive()) {
+                throw unauthorized();
+            }
+
+            String username = jwtService.extractUsername(refreshToken);
+
+            if (!storedToken.getEmail().equals(username)) {
+                throw unauthorized();
+            }
+
+            // Отзываем старый refresh token.
+            storedToken.setRevokedAt(Instant.now());
+            refreshTokenRepository.save(storedToken);
+
+            // Выдаём новую пару токенов.
             UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(email);
+                    userDetailsService.loadUserByUsername(username);
 
             return createAuthResponse(userDetails);
 
-        } catch (JwtException | IllegalArgumentException |
-                 UsernameNotFoundException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "Invalid or expired refresh token"
-            );
+        } catch (JwtException | IllegalArgumentException exception) {
+            throw unauthorized();
+        }
+    }
+
+    private ResponseStatusException unauthorized() {
+        return new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid or revoked refresh token"
+        );
+    }
+
+    @Transactional
+    public void logout(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return;
+        }
+
+        try {
+            if (!jwtService.isRefreshTokenValid(refreshToken)) {
+                return;
+            }
+
+            String tokenId = jwtService.extractTokenId(refreshToken);
+
+            refreshTokenRepository.findByTokenId(tokenId)
+                    .ifPresent(token -> {
+                        if (token.isActive()) {
+                            token.setRevokedAt(Instant.now());
+                            refreshTokenRepository.save(token);
+                        }
+                    });
+
+        } catch (JwtException | IllegalArgumentException exception) {
+            // Выход должен быть идемпотентным:
+            // невалидный или уже истёкший токен не мешает очистить сессию.
         }
     }
 }
