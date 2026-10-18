@@ -1,17 +1,16 @@
 package com.iharshashkou.internetstore.controller;
 
-import com.iharshashkou.internetstore.DTO.AuthResponse;
-import com.iharshashkou.internetstore.DTO.LoginRequest;
-import com.iharshashkou.internetstore.DTO.RefreshTokenRequest;
-import com.iharshashkou.internetstore.DTO.RegisterRequest;
+import com.iharshashkou.internetstore.DTO.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.iharshashkou.internetstore.service.AuthService;
+import org.springframework.beans.factory.annotation.Value;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,32 +19,117 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Value("${app.cookie.secure:false}")
+    private boolean cookieSecure;
+
+    @Value("${jwt.refresh-expiration-ms}")
+    private long refreshExpirationMs;
+
+    private ResponseCookie createRefreshCookie(String refreshToken) {
+        return ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .sameSite("Lax")
+                .path("/api/auth")
+                .maxAge(Duration.ofMillis(refreshExpirationMs))
+                .build();
+    }
+
+    private ResponseCookie clearRefreshCookie() {
+        return ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .sameSite("Lax")
+                .path("/api/auth")
+                .maxAge(Duration.ZERO)
+                .build();
+    }
+
     @PostMapping("/register")
-    public AuthResponse register(
+    public ResponseEntity<AuthResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-        return authService.register(request);
+        AuthTokens tokens = authService.register(request);
+
+        ResponseCookie cookie =
+                createRefreshCookie(tokens.refreshToken());
+
+        AuthResponse body = new AuthResponse(
+                tokens.accessToken(),
+                tokens.tokenType()
+        );
+
+        return ResponseEntity.status(201)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(body);
     }
 
     @PostMapping("/login")
-    public AuthResponse login(
+    public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest request
     ) {
-        return authService.login(request);
+        AuthTokens tokens = authService.login(request);
+
+        ResponseCookie cookie =
+                createRefreshCookie(tokens.refreshToken());
+
+        AuthResponse body = new AuthResponse(
+                tokens.accessToken(),
+                tokens.tokenType()
+        );
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(body);
     }
 
     @PostMapping("/refresh")
-    public AuthResponse refresh(
-            @Valid @RequestBody RefreshTokenRequest request
+    public ResponseEntity<AuthResponse> refresh(
+            @CookieValue(
+                    name = "refreshToken",
+                    required = false
+            ) String refreshToken
     ) {
-        return authService.refresh(request.refreshToken());
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.status(401)
+                    .header(
+                            HttpHeaders.SET_COOKIE,
+                            clearRefreshCookie().toString()
+                    )
+                    .build();
+        }
+
+        AuthTokens tokens = authService.refresh(refreshToken);
+
+        AuthResponse body = new AuthResponse(
+                tokens.accessToken(),
+                tokens.tokenType()
+        );
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        createRefreshCookie(tokens.refreshToken()).toString()
+                )
+                .body(body);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
-            @RequestBody RefreshTokenRequest request
+            @CookieValue(
+                    name = "refreshToken",
+                    required = false
+            ) String refreshToken
     ) {
-        authService.logout(request.refreshToken());
-        return ResponseEntity.noContent().build();
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            authService.logout(refreshToken);
+        }
+
+        return ResponseEntity.noContent()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        clearRefreshCookie().toString()
+                )
+                .build();
     }
 }

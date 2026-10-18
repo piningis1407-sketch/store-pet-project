@@ -1,9 +1,6 @@
 package com.iharshashkou.internetstore.service;
 
-import com.iharshashkou.internetstore.DTO.AuthResponse;
-import com.iharshashkou.internetstore.DTO.LoginRequest;
-import com.iharshashkou.internetstore.DTO.RegisterRequest;
-import com.iharshashkou.internetstore.DTO.Role;
+import com.iharshashkou.internetstore.DTO.*;
 import com.iharshashkou.internetstore.entity.RefreshTokenEntity;
 import com.iharshashkou.internetstore.entity.UserEntity;
 import com.iharshashkou.internetstore.repository.RefreshTokenRepository;
@@ -36,7 +33,7 @@ public class AuthService {
     private final JwtService jwtService;
 
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public AuthTokens register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -63,7 +60,7 @@ public class AuthService {
         return createAuthResponse(userDetails);
     }
 
-    public AuthResponse login(LoginRequest request) {
+    public AuthTokens login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(),
@@ -79,7 +76,7 @@ public class AuthService {
         return createAuthResponse(userDetails);
     }
 
-    private AuthResponse createAuthResponse(UserDetails userDetails) {
+    private AuthTokens createAuthResponse(UserDetails userDetails) {
         String accessToken = jwtService.generateToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
@@ -91,7 +88,7 @@ public class AuthService {
 
         refreshTokenRepository.save(entity);
 
-        return new AuthResponse(
+        return new AuthTokens(
                 accessToken,
                 refreshToken,
                 "Bearer"
@@ -99,7 +96,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse refresh(String refreshToken) {
+    public AuthTokens refresh(String refreshToken) {
         try {
             if (!jwtService.isRefreshTokenValid(refreshToken)) {
                 throw unauthorized();
