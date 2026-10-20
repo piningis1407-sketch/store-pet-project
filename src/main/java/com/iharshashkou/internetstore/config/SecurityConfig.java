@@ -80,8 +80,8 @@ public class SecurityConfig {
                                 "/api/auth/logout",
                                 "/error"
                         ).permitAll()
-                        .requestMatchers("/api/admin/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers("/api/users", "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
