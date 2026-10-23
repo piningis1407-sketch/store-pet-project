@@ -1,0 +1,13 @@
+package com.iharshashkou.internetstore.repository;
+
+import com.iharshashkou.internetstore.entity.Category;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface CategoryRepository extends JpaRepository<Category, Long> {
+
+    List<Category> findByActiveTrueOrderByNameAsc();
+
+    boolean existsByNameIgnoreCase(String name);
+}
