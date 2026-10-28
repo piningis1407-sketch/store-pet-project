@@ -31,6 +31,24 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    public Page<ProductResponse> findByCategory(
+            Long categoryId,
+            Pageable pageable
+    ) {
+        categoryRepository.findById(categoryId)
+                .filter(Category::isActive)
+                .orElseThrow(() ->
+                        new EntityNotFoundException(
+                                "Active category not found: " + categoryId
+                        )
+                );
+
+        return productRepository
+                .findByActiveTrueAndCategory_Id(categoryId, pageable)
+                .map(this::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public ProductResponse findById(Long id) {
         Product product = productRepository.findById(id)
                 .filter(Product::isActive)
@@ -117,5 +135,45 @@ public class ProductService {
                 category.getId(),
                 category.getName()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> searchProducts(
+            Long categoryId,
+            String search,
+            Pageable pageable
+    ) {
+        if (categoryId != null) {
+            categoryRepository.findById(categoryId)
+                    .filter(Category::isActive)
+                    .orElseThrow(() ->
+                            new EntityNotFoundException(
+                                    "Active category not found: " + categoryId
+                            )
+                    );
+        }
+
+        String normalizedSearch = search == null
+                ? null
+                : search.trim();
+
+        Page<Product> products;
+
+        if (normalizedSearch != null && !normalizedSearch.isEmpty()) {
+            products = productRepository.searchActiveProducts(
+                    categoryId,
+                    normalizedSearch,
+                    pageable
+            );
+        } else if (categoryId != null) {
+            products = productRepository.findByActiveTrueAndCategory_Id(
+                    categoryId,
+                    pageable
+            );
+        } else {
+            products = productRepository.findByActiveTrue(pageable);
+        }
+
+        return products.map(this::toResponse);
     }
 }

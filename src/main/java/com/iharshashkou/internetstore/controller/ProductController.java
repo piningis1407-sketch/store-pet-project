@@ -24,12 +24,19 @@ public class ProductController {
 
     @GetMapping
     public Page<ProductResponse> findAll(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String search,
             @PageableDefault(
                     size = 12,
                     sort = "name",
                     direction = Sort.Direction.ASC
-            ) Pageable pageable) {
-        return productService.findAll(pageable);
+            ) Pageable pageable
+    ) {
+        return productService.searchProducts(
+                categoryId,
+                search,
+                pageable
+        );
     }
 
     @GetMapping("/{id}")
