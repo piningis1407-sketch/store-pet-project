@@ -3,6 +3,7 @@ package com.iharshashkou.internetstore.service;
 import com.iharshashkou.internetstore.DTO.*;
 import com.iharshashkou.internetstore.entity.RefreshTokenEntity;
 import com.iharshashkou.internetstore.entity.UserEntity;
+import com.iharshashkou.internetstore.exception.UserNotFoundException;
 import com.iharshashkou.internetstore.repository.RefreshTokenRepository;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
@@ -137,6 +138,18 @@ public class AuthService {
         return new ResponseStatusException(
                 HttpStatus.UNAUTHORIZED,
                 "Invalid or revoked refresh token"
+        );
+    }
+
+    public UserProfileResponse getCurrentUserProfile(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(email)
+                );
+
+        return new UserProfileResponse(
+                user.getName(),
+                user.getEmail()
         );
     }
 

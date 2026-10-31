@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.iharshashkou.internetstore.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.security.Principal;
 import java.time.Duration;
 
 @RestController
@@ -43,6 +44,16 @@ public class AuthController {
                 .path("/api/auth")
                 .maxAge(Duration.ZERO)
                 .build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileResponse> getCurrentUser(
+            Principal principal
+    ) {
+        UserProfileResponse profile =
+                authService.getCurrentUserProfile(principal.getName());
+
+        return ResponseEntity.ok(profile);
     }
 
     @PostMapping("/register")
