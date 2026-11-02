@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -175,5 +174,21 @@ public class ProductService {
         }
 
         return products.map(this::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> findAllForAdmin(Pageable pageable) {
+        return productRepository.findAll(pageable)
+                .map(this::toResponse);
+    }
+
+    public void activate(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException(
+                                "Product not found: " + id));
+
+        product.setActive(true);
+        productRepository.save(product);
     }
 }

@@ -42,6 +42,14 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", ex.getMessage()));
     }
 
+    @ExceptionHandler(CategoryHasActiveProductsException.class)
+    public ResponseEntity<Map<String, String>> handleCategoryHasActiveProducts(
+            CategoryHasActiveProductsException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(
             EntityNotFoundException ex) {

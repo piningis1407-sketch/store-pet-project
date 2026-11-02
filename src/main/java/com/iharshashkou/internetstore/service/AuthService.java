@@ -149,7 +149,8 @@ public class AuthService {
 
         return new UserProfileResponse(
                 user.getName(),
-                user.getEmail()
+                user.getEmail(),
+                user.getRole()
         );
     }
 

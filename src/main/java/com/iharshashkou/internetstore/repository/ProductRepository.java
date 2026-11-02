@@ -28,4 +28,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("search") String search,
             Pageable pageable
     );
+
+    boolean existsByCategory_IdAndActiveTrue(Long categoryId);
 }
