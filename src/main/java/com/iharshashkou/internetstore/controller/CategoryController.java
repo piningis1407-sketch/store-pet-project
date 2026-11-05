@@ -45,4 +45,30 @@ public class CategoryController {
     public void deactivate(@PathVariable Long id) {
         categoryService.deactivate(id);
     }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<CategoryResponse> findAllForAdmin() {
+        return categoryService.findAllForAdmin();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CategoryResponse update(
+            @PathVariable Long id,
+            @Valid @RequestBody CategoryRequest request
+    ) {
+        return categoryService.update(
+                id,
+                request.name(),
+                request.description()
+        );
+    }
+
+    @PatchMapping("/{id}/activate")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void activate(@PathVariable Long id) {
+        categoryService.activate(id);
+    }
 }

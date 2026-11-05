@@ -71,10 +71,56 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> findAllForAdmin() {
+        return categoryRepository.findAllByOrderByNameAsc()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public CategoryResponse update(Long id, String name, String description) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException(
+                                "Category not found: " + id));
+
+        String trimmedName = name.trim();
+
+        if (categoryRepository.existsByNameIgnoreCaseAndIdNot(
+                trimmedName, id)) {
+            throw new CategoryAlreadyExistsException(
+                    "Category already exists: " + trimmedName
+            );
+        }
+
+        category.setName(trimmedName);
+        category.setDescription(description);
+
+        return toResponse(categoryRepository.save(category));
+    }
+
+    public void activate(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException(
+                                "Category not found: " + id));
+
+        if (category.isActive()) {
+            return;
+        }
+
+        category.setActive(true);
+        categoryRepository.save(category);
+    }
+
     private CategoryResponse toResponse(Category category) {
         return new CategoryResponse(
                 category.getId(),
-                category.getName()
+                category.getName(),
+                category.getDescription(),
+                category.isActive(),
+                category.getCreatedAt()
         );
     }
 }

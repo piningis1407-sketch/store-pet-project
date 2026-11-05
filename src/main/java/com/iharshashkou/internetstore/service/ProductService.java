@@ -132,7 +132,10 @@ public class ProductService {
 
         return new CategoryResponse(
                 category.getId(),
-                category.getName()
+                category.getName(),
+                category.getDescription(),
+                category.isActive(),
+                category.getCreatedAt()
         );
     }
 
