@@ -19,7 +19,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RefreshTokenEntity {
+public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,7 @@ public class RefreshTokenEntity {
     @Column
     private Instant revokedAt;
 
-    public RefreshTokenEntity(
+    public RefreshToken(
             String tokenId,
             String email,
             Instant expiresAt

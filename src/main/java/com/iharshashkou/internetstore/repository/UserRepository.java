@@ -1,13 +1,13 @@
 package com.iharshashkou.internetstore.repository;
 
-import com.iharshashkou.internetstore.entity.UserEntity;
+import com.iharshashkou.internetstore.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity,Long> {
-    Optional<UserEntity> findByEmail(String email);
+public interface UserRepository extends JpaRepository<User,Long> {
+    Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
 }

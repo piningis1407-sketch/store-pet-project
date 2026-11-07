@@ -85,4 +85,18 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(CartConflictException.class)
+    public ResponseEntity<Map<String, Object>> handleCartConflict(
+            CartConflictException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                Map.of(
+                        "timestamp", Instant.now().toString(),
+                        "status", 409,
+                        "error", "Conflict",
+                        "message", ex.getMessage()
+                )
+        );
+    }
 }

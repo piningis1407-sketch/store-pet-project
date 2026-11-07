@@ -2,7 +2,7 @@ package com.iharshashkou.internetstore.service;
 
 import com.iharshashkou.internetstore.DTO.UserRequest;
 import com.iharshashkou.internetstore.DTO.UserResponse;
-import com.iharshashkou.internetstore.entity.UserEntity;
+import com.iharshashkou.internetstore.entity.User;
 import com.iharshashkou.internetstore.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import com.iharshashkou.internetstore.mapper.UserMapper;
@@ -29,13 +29,13 @@ public class UserService {
             );
         }
 
-        UserEntity user = userMapper.toEntity(request);
+        User user = userMapper.toEntity(request);
 
         user.setPassword(
                 passwordEncoder.encode(request.password())
         );
 
-        UserEntity savedUser = userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         return userMapper.toResponse(savedUser);
     }
@@ -54,7 +54,7 @@ public class UserService {
     }
 
     public UserResponse update(Long id, UserRequest request) {
-        UserEntity user = findUser(id);
+        User user = findUser(id);
 
         userRepository.findByEmail(request.email())
                 .filter(existing -> !existing.getId().equals(id))
@@ -70,17 +70,17 @@ public class UserService {
                 passwordEncoder.encode(request.password())
         );
 
-        UserEntity updatedUser = userRepository.save(user);
+        User updatedUser = userRepository.save(user);
 
         return userMapper.toResponse(updatedUser);
     }
 
     public void delete(Long id) {
-        UserEntity user = findUser(id);
+        User user = findUser(id);
         userRepository.delete(user);
     }
 
-    private UserEntity findUser(Long id) {
+    private User findUser(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }

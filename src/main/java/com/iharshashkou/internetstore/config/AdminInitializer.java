@@ -1,7 +1,7 @@
 package com.iharshashkou.internetstore.config;
 
 import com.iharshashkou.internetstore.DTO.Role;
-import com.iharshashkou.internetstore.entity.UserEntity;
+import com.iharshashkou.internetstore.entity.User;
 import com.iharshashkou.internetstore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -30,7 +30,7 @@ public class AdminInitializer {
                 return;
             }
 
-            UserEntity admin = UserEntity.builder()
+            User admin = User.builder()
                     .name("Administrator")
                     .email(email)
                     .password(passwordEncoder.encode(password))

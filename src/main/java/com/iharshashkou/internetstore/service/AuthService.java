@@ -1,8 +1,8 @@
 package com.iharshashkou.internetstore.service;
 
 import com.iharshashkou.internetstore.DTO.*;
-import com.iharshashkou.internetstore.entity.RefreshTokenEntity;
-import com.iharshashkou.internetstore.entity.UserEntity;
+import com.iharshashkou.internetstore.entity.RefreshToken;
+import com.iharshashkou.internetstore.entity.User;
 import com.iharshashkou.internetstore.exception.UserNotFoundException;
 import com.iharshashkou.internetstore.repository.RefreshTokenRepository;
 import io.jsonwebtoken.JwtException;
@@ -12,7 +12,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +41,7 @@ public class AuthService {
             );
         }
 
-        UserEntity user = UserEntity.builder()
+        User user = User.builder()
                 .name(request.name())
                 .email(request.email())
                 .password(passwordEncoder.encode(
@@ -81,7 +80,7 @@ public class AuthService {
         String accessToken = jwtService.generateToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-        RefreshTokenEntity entity = new RefreshTokenEntity(
+        RefreshToken entity = new RefreshToken(
                 jwtService.extractTokenId(refreshToken),
                 userDetails.getUsername(),
                 jwtService.extractExpiration(refreshToken)
@@ -105,7 +104,7 @@ public class AuthService {
 
             String tokenId = jwtService.extractTokenId(refreshToken);
 
-            RefreshTokenEntity storedToken = refreshTokenRepository
+            RefreshToken storedToken = refreshTokenRepository
                     .findByTokenId(tokenId)
                     .orElseThrow(this::unauthorized);
 
@@ -142,7 +141,7 @@ public class AuthService {
     }
 
     public UserProfileResponse getCurrentUserProfile(String email) {
-        UserEntity user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new UserNotFoundException(email)
                 );
