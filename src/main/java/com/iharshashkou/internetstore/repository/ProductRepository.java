@@ -6,6 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+
+import java.util.Optional;
 
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -30,4 +34,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     boolean existsByCategory_IdAndActiveTrue(Long categoryId);
+
+    //позволяет заблокировать строку товара в базе на время транзакции оформления заказа
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Product p WHERE p.id = :productId")
+    Optional<Product> findByIdForUpdate(
+            @Param("productId") Long productId
+    );
 }
