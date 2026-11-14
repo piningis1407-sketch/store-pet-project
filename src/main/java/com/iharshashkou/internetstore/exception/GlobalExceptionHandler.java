@@ -99,4 +99,12 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(CustomDesignValidationException.class)
+    public ResponseEntity<Map<String, String>> handleCustomDesignValidation(
+            CustomDesignValidationException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", ex.getMessage()));
+    }
 }

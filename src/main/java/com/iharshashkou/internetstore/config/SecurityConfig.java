@@ -94,7 +94,6 @@ public class SecurityConfig {
                                 "/api/products",
                                 "/api/products/**"
                         ).hasRole("ADMIN")
-
                         .requestMatchers(
                                 HttpMethod.PUT,
                                 "/api/products",
@@ -108,6 +107,22 @@ public class SecurityConfig {
                         ).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/categories", "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/categories", "/api/categories/**").hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/custom-designs",
+                                "/api/custom-designs/*/submit"
+                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/custom-designs/guest/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/custom-designs/admin/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                "/api/custom-designs",
+                                "/api/custom-designs/*"
+                        ).authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(

@@ -35,12 +35,6 @@ public class JwtAuthenticationFilter
         String header = request.getHeader(
                 HttpHeaders.AUTHORIZATION
         );
-        // Временное логирование для диагностики
-        System.out.println("JWT filter: " + request.getMethod()
-                + " " + request.getRequestURI());
-
-        System.out.println("Authorization header present: "
-                + (header != null));
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
