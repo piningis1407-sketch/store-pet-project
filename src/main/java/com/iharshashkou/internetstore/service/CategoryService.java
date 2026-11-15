@@ -2,6 +2,7 @@ package com.iharshashkou.internetstore.service;
 
 import com.iharshashkou.internetstore.DTO.CategoryResponse;
 import com.iharshashkou.internetstore.entity.Category;
+import com.iharshashkou.internetstore.entity.CategoryType;
 import com.iharshashkou.internetstore.exception.CategoryAlreadyExistsException;
 import com.iharshashkou.internetstore.exception.CategoryHasActiveProductsException;
 import com.iharshashkou.internetstore.repository.CategoryRepository;
@@ -40,6 +41,7 @@ public class CategoryService {
                 .name(name.trim())
                 .description(description)
                 .active(true)
+                .type(determineCategoryType(name))
                 .build();
 
         return toResponse(categoryRepository.save(category));
@@ -96,6 +98,7 @@ public class CategoryService {
 
         category.setName(trimmedName);
         category.setDescription(description);
+        category.setType(determineCategoryType(trimmedName));
 
         return toResponse(categoryRepository.save(category));
     }
@@ -122,5 +125,20 @@ public class CategoryService {
                 category.isActive(),
                 category.getCreatedAt()
         );
+    }
+
+    private CategoryType determineCategoryType(String name) {
+
+        String normalizedName = name.trim().toLowerCase();
+
+        if (normalizedName.contains("стол")) {
+            return CategoryType.TABLE;
+        }
+
+        if (normalizedName.contains("стул")) {
+            return CategoryType.CHAIR;
+        }
+
+        return CategoryType.OTHER;
     }
 }

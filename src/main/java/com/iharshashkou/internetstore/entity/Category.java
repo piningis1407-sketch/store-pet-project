@@ -31,6 +31,11 @@ public class Category {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private CategoryType type = CategoryType.OTHER;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {

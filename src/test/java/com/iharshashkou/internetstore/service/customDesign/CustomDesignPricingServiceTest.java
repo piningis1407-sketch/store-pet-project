@@ -1,5 +1,13 @@
 package com.iharshashkou.internetstore.service.customDesign;
 
+import com.iharshashkou.internetstore.entity.Category;
+import com.iharshashkou.internetstore.entity.CategoryType;
+import com.iharshashkou.internetstore.repository.CategoryRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.when;
 import com.iharshashkou.internetstore.DTO.customDesign.CreateCustomDesignRequest;
 import com.iharshashkou.internetstore.entity.customDesignEntity.DesignBackground;
 import com.iharshashkou.internetstore.entity.customDesignEntity.DesignShape;
@@ -8,23 +16,42 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(MockitoExtension.class)
 class CustomDesignPricingServiceTest {
 
-    private final CustomDesignPricingService pricingService =
-            new CustomDesignPricingService();
+    @Mock
+    private CategoryRepository categoryRepository;
+
+    private CustomDesignPricingService pricingService;
+
+    @BeforeEach
+    void setUp() {
+
+        pricingService = new CustomDesignPricingService(categoryRepository);
+
+        Category category = Category.builder()
+                .id(1L)
+                .name("Столы")
+                .type(CategoryType.TABLE)
+                .build();
+
+        when(categoryRepository.findById(1L))
+                .thenReturn(Optional.of(category));
+    }
 
     @Test
     void calculatesPriceForEveryWoodType() {
 
-        Map<WoodType, Long> expectedPrices = Map.of(
-                WoodType.OAK, 15000L,
-                WoodType.WALNUT, 20000L,
-                WoodType.ASH, 14000L,
-                WoodType.BIRCH, 12000L,
-                WoodType.KARAGACH, 18000L
+        Map<WoodType, BigDecimal> expectedPrices = Map.of(
+                WoodType.OAK, new BigDecimal("2625.00"),
+                WoodType.WALNUT, new BigDecimal("3491.25"),
+                WoodType.ASH, new BigDecimal("2441.25"),
+                WoodType.BIRCH, new BigDecimal("2100.00"),
+                WoodType.KARAGACH, new BigDecimal("3150.00")
         );
 
         expectedPrices.forEach((woodType, expectedPrice) -> {
@@ -36,7 +63,7 @@ class CustomDesignPricingServiceTest {
             );
 
             assertEquals(
-                    BigDecimal.valueOf(expectedPrice).setScale(2),
+                    expectedPrice,
                     pricingService.calculatePrice(request),
                     "Incorrect price for wood type: " + woodType
             );
@@ -46,12 +73,12 @@ class CustomDesignPricingServiceTest {
     @Test
     void calculatesPriceForEveryShape() {
 
-        Map<DesignShape, Long> expectedPrices = Map.of(
-                DesignShape.ROUND, 18000L,
-                DesignShape.RECTANGULAR, 15000L,
-                DesignShape.OVAL, 19000L,
-                DesignShape.SQUARE, 16000L,
-                DesignShape.IRREGULAR, 22000L
+        Map<DesignShape, BigDecimal> expectedPrices = Map.of(
+                DesignShape.ROUND, new BigDecimal("4123.34"),
+                DesignShape.RECTANGULAR, new BigDecimal("2625.00"),
+                DesignShape.OVAL, new BigDecimal("2618.32"),
+                DesignShape.SQUARE, new BigDecimal("2808.75"),
+                DesignShape.IRREGULAR, new BigDecimal("3858.75")
         );
 
         expectedPrices.forEach((shape, expectedPrice) -> {
@@ -63,7 +90,7 @@ class CustomDesignPricingServiceTest {
             );
 
             assertEquals(
-                    BigDecimal.valueOf(expectedPrice).setScale(2),
+                    expectedPrice,
                     pricingService.calculatePrice(request),
                     "Incorrect price for shape: " + shape
             );
@@ -86,12 +113,12 @@ class CustomDesignPricingServiceTest {
         );
 
         assertEquals(
-                new BigDecimal("15000.00"),
+                new BigDecimal("2625.00"),
                 pricingService.calculatePrice(withoutEpoxy)
         );
 
         assertEquals(
-                new BigDecimal("23000.00"),
+                new BigDecimal("3825.00"),
                 pricingService.calculatePrice(withEpoxy)
         );
     }
@@ -101,6 +128,10 @@ class CustomDesignPricingServiceTest {
             DesignShape shape,
             Boolean epoxyEnabled
     ) {
+        Integer length = shape == DesignShape.ROUND ? null : 100;
+        Integer width = shape == DesignShape.ROUND ? null : 60;
+        Integer diameter = shape == DesignShape.ROUND ? 100 : null;
+
         return new CreateCustomDesignRequest(
                 1L,
                 woodType,
@@ -108,10 +139,10 @@ class CustomDesignPricingServiceTest {
                 epoxyEnabled,
                 null,
                 DesignBackground.NEUTRAL,
-                100,
-                60,
+                length,
+                width,
                 5,
-                null,
+                diameter,
                 null
         );
     }
