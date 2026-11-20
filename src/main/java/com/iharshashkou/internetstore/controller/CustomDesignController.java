@@ -7,6 +7,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -35,6 +36,48 @@ public class CustomDesignController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(customDesignService.createDesign(userId, request));
+    }
+
+    @PostMapping("/{designId}/image")
+    public ResponseEntity<CustomDesignResponse> generateImage(
+            @PathVariable Long designId,
+            @RequestHeader(value = "X-Guest-Token", required = false)
+            String guestAccessToken,
+            Authentication authentication
+    ) {
+        Long userId = isAuthenticatedUser(authentication)
+                ? getUserId(authentication)
+                : null;
+
+        return ResponseEntity.ok(
+                customDesignService.generateImage(
+                        designId,
+                        userId,
+                        guestAccessToken
+                )
+        );
+    }
+
+    @GetMapping("/{designId}/image")
+    public ResponseEntity<byte[]> getImage(
+            @PathVariable Long designId,
+            @RequestHeader(value = "X-Guest-Token", required = false)
+            String guestAccessToken,
+            Authentication authentication
+    ) {
+        Long userId = isAuthenticatedUser(authentication)
+                ? getUserId(authentication)
+                : null;
+
+        byte[] imageBytes = customDesignService.getImage(
+                designId,
+                userId,
+                guestAccessToken
+        );
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(imageBytes);
     }
 
     @GetMapping("/guest/{designId}")

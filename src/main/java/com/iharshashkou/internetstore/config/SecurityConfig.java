@@ -110,11 +110,16 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/custom-designs",
-                                "/api/custom-designs/*/submit"
+                                "/api/custom-designs/*/submit",
+                                "/api/custom-designs/*/image"
                         ).permitAll()
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/custom-designs/guest/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/custom-designs/*/image"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/custom-designs/admin/**"

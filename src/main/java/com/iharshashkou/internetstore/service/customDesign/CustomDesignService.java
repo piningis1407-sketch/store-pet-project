@@ -34,6 +34,9 @@ public class CustomDesignService {
     private final UserRepository userRepository;
     private final CustomDesignPricingService pricingService;
     private final CustomDesignValidationService validationService;
+    private final CloudflareWorkersAiClient cloudflareWorkersAiClient;
+    private final CustomDesignImageStorageService imageStorageService;
+
     private final SecureRandom secureRandom = new SecureRandom();
 
     public CreateCustomDesignResponse createDesign(
@@ -98,6 +101,73 @@ public class CustomDesignService {
                 getDesignResponse(design),
                 guestAccessToken
         );
+    }
+
+    public CustomDesignResponse generateImage(
+            Long designId,
+            Long userId,
+            String guestAccessToken
+    ) {
+        // Проверяем владельца проекта.
+        CustomDesign design = getDesignForImageGeneration(
+                designId,
+                userId,
+                guestAccessToken
+        );
+
+        // Изображение можно создавать только для нового проекта.
+        if (design.getStatus() != CustomDesignStatus.GENERATED) {
+            throw new CustomDesignValidationException(
+                    "Генерировать изображение можно только для созданного проекта"
+            );
+        }
+
+        // Формируем описание для AI.
+        String prompt = buildImagePrompt(design);
+
+        // Генерируем изображение через Cloudflare.
+        byte[] imageBytes = cloudflareWorkersAiClient.generateImage(prompt);
+
+        if (imageBytes == null || imageBytes.length == 0) {
+            throw new IllegalStateException(
+                    "Cloudflare вернул пустое изображение"
+            );
+        }
+
+        // Сохраняем изображение на локальный диск.
+        String imageUrl = imageStorageService.saveImage(
+                design.getId(),
+                imageBytes
+        );
+
+        // Сохраняем путь к изображению в базе данных.
+        design.setImageUrl(imageUrl);
+
+        design = customDesignRepository.save(design);
+
+        return getDesignResponse(design);
+    }
+
+    public byte[] getImage(
+            Long designId,
+            Long userId,
+            String guestAccessToken
+    ) {
+        // Проверяем владельца проекта.
+        CustomDesign design = getDesignForImageGeneration(
+                designId,
+                userId,
+                guestAccessToken
+        );
+
+        // Проверяем наличие изображения в проекте.
+        if (design.getImageUrl() == null || design.getImageUrl().isBlank()) {
+            throw new EntityNotFoundException(
+                    "Изображение проекта ещё не создано"
+            );
+        }
+
+        return imageStorageService.getImage(designId);
     }
 
     public CustomDesignResponse getGuestDesign(
@@ -318,5 +388,97 @@ public class CustomDesignService {
                 design.getStatus(),
                 design.getCreatedAt()
         );
+    }
+
+    private CustomDesign getDesignForImageGeneration(
+            Long designId,
+            Long userId,
+            String guestAccessToken
+    ) {
+        if (userId != null) {
+            return customDesignRepository
+                    .findByIdAndUser_Id(designId, userId)
+                    .orElseThrow(() ->
+                            new EntityNotFoundException("Проект не найден")
+                    );
+        }
+
+        if (guestAccessToken == null || guestAccessToken.isBlank()) {
+            throw new CustomDesignValidationException(
+                    "Необходимо указать токен доступа"
+            );
+        }
+
+        String tokenHash = hashGuestToken(guestAccessToken);
+
+        return customDesignRepository
+                .findByIdAndGuestTokenHash(designId, tokenHash)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Проект не найден")
+                );
+    }
+
+    private String buildImagePrompt(CustomDesign design) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append("""
+            Create a highly realistic professional product photograph
+            of a handcrafted furniture piece made from solid wood
+            and epoxy resin when specified.
+
+            The object must accurately follow these design parameters:
+            """);
+
+        prompt.append("\nCategory: ")
+                .append(design.getCategory().getName());
+
+        prompt.append("\nWood type: ")
+                .append(design.getWoodType());
+
+        prompt.append("\nShape: ")
+                .append(design.getShape());
+
+        if (design.isEpoxyEnabled()) {
+            prompt.append("\nEpoxy resin: enabled");
+            prompt.append("\nEpoxy color: ")
+                    .append(design.getEpoxyColor());
+        } else {
+            prompt.append("\nEpoxy resin: disabled");
+        }
+
+        prompt.append("\nDimensions in centimeters:");
+
+        prompt.append("\nLength: ")
+                .append(design.getLengthCm());
+
+        prompt.append("\nWidth: ")
+                .append(design.getWidthCm());
+
+        prompt.append("\nHeight: ")
+                .append(design.getHeightCm());
+
+        prompt.append("\nDiameter: ")
+                .append(design.getDiameterCm());
+
+        prompt.append("\nBackground: ")
+                .append(design.getBackground());
+
+        if (design.getComment() != null
+                && !design.getComment().isBlank()) {
+            prompt.append("\nAdditional design requirements: ")
+                    .append(design.getComment());
+        }
+
+        prompt.append("""
+
+            Show one complete finished handcrafted object.
+            Preserve realistic wood grain, natural wood texture,
+            detailed craftsmanship and realistic epoxy resin.
+            Premium furniture product photography, natural lighting,
+            high detail, professional composition.
+            No text, no logos, no watermarks.
+            """);
+
+        return prompt.toString();
     }
 }
