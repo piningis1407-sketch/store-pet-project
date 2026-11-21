@@ -1,7 +1,7 @@
 package com.iharshashkou.internetstore.entity;
 
 
-import com.iharshashkou.internetstore.DTO.Role;
+import com.iharshashkou.internetstore.DTO.user.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

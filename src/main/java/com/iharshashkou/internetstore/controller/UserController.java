@@ -1,7 +1,7 @@
 package com.iharshashkou.internetstore.controller;
 
-import com.iharshashkou.internetstore.DTO.UserRequest;
-import com.iharshashkou.internetstore.DTO.UserResponse;
+import com.iharshashkou.internetstore.DTO.user.UserRequest;
+import com.iharshashkou.internetstore.DTO.user.UserResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -1,6 +1,6 @@
 package com.iharshashkou.internetstore.config;
 
-import com.iharshashkou.internetstore.DTO.Role;
+import com.iharshashkou.internetstore.DTO.user.Role;
 import com.iharshashkou.internetstore.entity.User;
 import com.iharshashkou.internetstore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;

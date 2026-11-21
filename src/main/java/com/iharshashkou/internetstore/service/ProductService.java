@@ -1,8 +1,8 @@
 package com.iharshashkou.internetstore.service;
 
-import com.iharshashkou.internetstore.DTO.CategoryResponse;
-import com.iharshashkou.internetstore.DTO.ProductRequest;
-import com.iharshashkou.internetstore.DTO.ProductResponse;
+import com.iharshashkou.internetstore.DTO.category.CategoryResponse;
+import com.iharshashkou.internetstore.DTO.product.ProductRequest;
+import com.iharshashkou.internetstore.DTO.product.ProductResponse;
 import com.iharshashkou.internetstore.entity.Category;
 import com.iharshashkou.internetstore.entity.Product;
 import com.iharshashkou.internetstore.repository.CategoryRepository;

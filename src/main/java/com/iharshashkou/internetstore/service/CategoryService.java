@@ -1,6 +1,6 @@
 package com.iharshashkou.internetstore.service;
 
-import com.iharshashkou.internetstore.DTO.CategoryResponse;
+import com.iharshashkou.internetstore.DTO.category.CategoryResponse;
 import com.iharshashkou.internetstore.entity.Category;
 import com.iharshashkou.internetstore.entity.CategoryType;
 import com.iharshashkou.internetstore.exception.CategoryAlreadyExistsException;

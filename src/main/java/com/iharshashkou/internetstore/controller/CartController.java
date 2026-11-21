@@ -1,8 +1,8 @@
 package com.iharshashkou.internetstore.controller;
 
-import com.iharshashkou.internetstore.DTO.AddCartItemRequest;
-import com.iharshashkou.internetstore.DTO.CartResponse;
-import com.iharshashkou.internetstore.DTO.UpdateCartItemRequest;
+import com.iharshashkou.internetstore.DTO.cart.AddCartItemRequest;
+import com.iharshashkou.internetstore.DTO.cart.CartResponse;
+import com.iharshashkou.internetstore.DTO.cart.UpdateCartItemRequest;
 import com.iharshashkou.internetstore.repository.UserRepository;
 import com.iharshashkou.internetstore.service.CartService;
 import jakarta.validation.Valid;

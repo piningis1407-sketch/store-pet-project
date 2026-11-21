@@ -1,7 +1,7 @@
 package com.iharshashkou.internetstore.mapper;
 
-import com.iharshashkou.internetstore.DTO.UserRequest;
-import com.iharshashkou.internetstore.DTO.UserResponse;
+import com.iharshashkou.internetstore.DTO.user.UserRequest;
+import com.iharshashkou.internetstore.DTO.user.UserResponse;
 import com.iharshashkou.internetstore.entity.User;
 import org.springframework.stereotype.Component;
 

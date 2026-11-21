@@ -1,6 +1,10 @@
 package com.iharshashkou.internetstore.controller;
 
-import com.iharshashkou.internetstore.DTO.*;
+import com.iharshashkou.internetstore.DTO.auth.AuthResponse;
+import com.iharshashkou.internetstore.DTO.auth.AuthTokens;
+import com.iharshashkou.internetstore.DTO.auth.LoginRequest;
+import com.iharshashkou.internetstore.DTO.auth.RegisterRequest;
+import com.iharshashkou.internetstore.DTO.user.UserProfileResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;

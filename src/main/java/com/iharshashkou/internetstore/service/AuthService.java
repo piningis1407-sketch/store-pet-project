@@ -1,6 +1,10 @@
 package com.iharshashkou.internetstore.service;
 
-import com.iharshashkou.internetstore.DTO.*;
+import com.iharshashkou.internetstore.DTO.auth.AuthTokens;
+import com.iharshashkou.internetstore.DTO.auth.LoginRequest;
+import com.iharshashkou.internetstore.DTO.auth.RegisterRequest;
+import com.iharshashkou.internetstore.DTO.user.Role;
+import com.iharshashkou.internetstore.DTO.user.UserProfileResponse;
 import com.iharshashkou.internetstore.entity.RefreshToken;
 import com.iharshashkou.internetstore.entity.User;
 import com.iharshashkou.internetstore.exception.UserNotFoundException;

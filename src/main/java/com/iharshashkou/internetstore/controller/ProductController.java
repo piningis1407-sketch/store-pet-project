@@ -1,7 +1,7 @@
 package com.iharshashkou.internetstore.controller;
 
-import com.iharshashkou.internetstore.DTO.ProductRequest;
-import com.iharshashkou.internetstore.DTO.ProductResponse;
+import com.iharshashkou.internetstore.DTO.product.ProductRequest;
+import com.iharshashkou.internetstore.DTO.product.ProductResponse;
 import com.iharshashkou.internetstore.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

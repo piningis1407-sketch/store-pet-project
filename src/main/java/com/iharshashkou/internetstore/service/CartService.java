@@ -1,7 +1,7 @@
 package com.iharshashkou.internetstore.service;
 
-import com.iharshashkou.internetstore.DTO.CartItemResponse;
-import com.iharshashkou.internetstore.DTO.CartResponse;
+import com.iharshashkou.internetstore.DTO.cart.CartItemResponse;
+import com.iharshashkou.internetstore.DTO.cart.CartResponse;
 import com.iharshashkou.internetstore.entity.Cart;
 import com.iharshashkou.internetstore.entity.CartItem;
 import com.iharshashkou.internetstore.entity.Product;
