@@ -2,7 +2,7 @@ package com.iharshashkou.internetstore.repository.product;
 
 import com.iharshashkou.internetstore.entity.Category;
 import com.iharshashkou.internetstore.entity.Product;
-import com.iharshashkou.internetstore.repository.BaseProductRepositoryTest;
+import com.iharshashkou.internetstore.repository.BaseRepositoryTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ProductRepositoryTest extends BaseProductRepositoryTest {
+class ProductRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void findByActiveTrue_shouldReturnOnlyActiveProducts() {
@@ -34,16 +34,6 @@ class ProductRepositoryTest extends BaseProductRepositoryTest {
         assertEquals(2, result.getTotalElements());
         assertEquals(2, result.getContent().size());
         assertTrue(result.getContent().stream().allMatch(Product::isActive));
-    }
-
-    private Product createProduct(String name, boolean active) {
-        return Product.builder()
-                .name(name)
-                .description("Test description")
-                .price(new BigDecimal("100.00"))
-                .stockQuantity(10)
-                .active(active)
-                .build();
     }
 
     @Test
@@ -174,5 +164,15 @@ class ProductRepositoryTest extends BaseProductRepositoryTest {
 
         assertEquals(product.getId(), result.getId());
         assertEquals("Locked table", result.getName());
+    }
+
+    private Product createProduct(String name, boolean active) {
+        return Product.builder()
+                .name(name)
+                .description("Test description")
+                .price(new BigDecimal("100.00"))
+                .stockQuantity(10)
+                .active(active)
+                .build();
     }
 }

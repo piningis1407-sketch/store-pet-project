@@ -2,12 +2,12 @@ package com.iharshashkou.internetstore.repository.user;
 
 import com.iharshashkou.internetstore.DTO.user.Role;
 import com.iharshashkou.internetstore.entity.User;
-import com.iharshashkou.internetstore.repository.BaseProductRepositoryTest;
+import com.iharshashkou.internetstore.repository.BaseRepositoryTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserRepositoryTest extends BaseProductRepositoryTest {
+class UserRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void findByEmail_shouldReturnUserWhenEmailExists() {

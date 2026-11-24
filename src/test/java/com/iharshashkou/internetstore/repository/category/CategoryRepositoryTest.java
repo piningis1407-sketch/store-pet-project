@@ -1,14 +1,14 @@
 package com.iharshashkou.internetstore.repository.category;
 
 import com.iharshashkou.internetstore.entity.Category;
-import com.iharshashkou.internetstore.repository.BaseProductRepositoryTest;
+import com.iharshashkou.internetstore.repository.BaseRepositoryTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CategoryRepositoryTest extends BaseProductRepositoryTest {
+class CategoryRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void findByActiveTrueOrderByNameAsc_shouldReturnOnlyActiveCategoriesSortedByName() {
@@ -24,14 +24,6 @@ class CategoryRepositoryTest extends BaseProductRepositoryTest {
         assertEquals("Chairs", result.get(0).getName());
         assertEquals("Tables", result.get(1).getName());
         assertTrue(result.stream().allMatch(Category::isActive));
-    }
-
-    private Category createCategory(String name, boolean active) {
-        return Category.builder()
-                .name(name)
-                .description("Test category")
-                .active(active)
-                .build();
     }
 
     @Test
@@ -89,5 +81,13 @@ class CategoryRepositoryTest extends BaseProductRepositoryTest {
                         chairs.getId()
                 )
         );
+    }
+
+    private Category createCategory(String name, boolean active) {
+        return Category.builder()
+                .name(name)
+                .description("Test category")
+                .active(active)
+                .build();
     }
 }

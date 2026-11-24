@@ -8,7 +8,7 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public abstract class BaseProductRepositoryTest {
+public abstract class BaseRepositoryTest {
 
     @Autowired
     protected ProductRepository productRepository;
@@ -18,4 +18,16 @@ public abstract class BaseProductRepositoryTest {
 
     @Autowired
     protected UserRepository userRepository;
+
+    @Autowired
+    protected CartRepository cartRepository;
+
+    @Autowired
+    protected CartItemRepository cartItemRepository;
+
+    @Autowired
+    protected OrderRepository orderRepository;
+
+    @Autowired
+    protected OrderItemRepository orderItemRepository;
 }
