@@ -10,6 +10,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -118,6 +119,25 @@ class ProductControllerUpdateTest extends BaseProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void update_shouldReturnUnauthorized_whenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(put("/api/products/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "Updated Oak Table",
+                                "description": "Updated description",
+                                "price": 1800.00,
+                                "stockQuantity": 10,
+                                "imageUrl": "https://example.com/updated-table.jpg",
+                                "categoryId": 1
+                            }
+                            """))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(productService);
     }
 
     private void performInvalidRequest(ProductRequest request) throws Exception {

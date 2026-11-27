@@ -206,4 +206,30 @@ class ProductServiceSearchTest extends BaseProductServiceTest {
         verify(categoryRepository).findById(categoryId);
         verifyNoInteractions(productRepository);
     }
+
+    @Test
+    void searchProducts_shouldReturnAllActiveProducts_whenSearchIsNull() {
+        PageRequest pageable = PageRequest.of(0, 10);
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("Oak Table")
+                .active(true)
+                .build();
+
+        when(productRepository.findByActiveTrue(pageable))
+                .thenReturn(new PageImpl<>(List.of(product)));
+
+        Page<ProductResponse> result =
+                productService.searchProducts(null, null, pageable);
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Oak Table", result.getContent().getFirst().name());
+
+        verify(productRepository).findByActiveTrue(pageable);
+        verifyNoInteractions(categoryRepository);
+
+        verify(productRepository, never())
+                .searchActiveProducts(any(), any(), any());
+    }
 }

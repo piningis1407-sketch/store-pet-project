@@ -7,8 +7,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,4 +39,14 @@ class ProductControllerGetAllForAdminTest extends BaseProductControllerTest {
         mockMvc.perform(get("/api/products/admin"))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    void findAllForAdmin_shouldReturnUnauthorized_whenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/api/products/admin"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(productService);
+    }
+
+
 }

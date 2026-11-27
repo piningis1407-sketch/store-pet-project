@@ -101,7 +101,7 @@ class ProductRepositoryTest extends BaseRepositoryTest {
         Product product2 = createProduct("Walnut River Table", true);
         product2.setCategory(tables);
 
-        Product product3 = createProduct("Oak Chair", true);
+        Product product3 = createProduct("Oak River Chair", true);
         product3.setCategory(chairs);
 
         Product product4 = createProduct("Oak River Table Inactive", false);
@@ -119,6 +119,9 @@ class ProductRepositoryTest extends BaseRepositoryTest {
 
         assertEquals(2, result.getTotalElements());
         assertTrue(result.getContent().stream().allMatch(Product::isActive));
+        assertTrue(result.getContent().stream()
+                .allMatch(product ->
+                        product.getCategory().getId().equals(tables.getId())));
         assertTrue(result.getContent().stream()
                 .allMatch(product -> product.getName().toLowerCase().contains("river")));
     }
@@ -164,6 +167,60 @@ class ProductRepositoryTest extends BaseRepositoryTest {
 
         assertEquals(product.getId(), result.getId());
         assertEquals("Locked table", result.getName());
+    }
+
+    @Test
+    void searchActiveProducts_withoutCategory_shouldSearchAcrossAllCategories() {
+        Category tables = categoryRepository.save(
+                Category.builder()
+                        .name("Search Tables")
+                        .description("Test category")
+                        .build()
+        );
+
+        Category chairs = categoryRepository.save(
+                Category.builder()
+                        .name("Search Chairs")
+                        .description("Test category")
+                        .build()
+        );
+
+        Product table = createProduct("Oak River Table", true);
+        table.setCategory(tables);
+
+        Product chair = createProduct("Oak River Chair", true);
+        chair.setCategory(chairs);
+
+        productRepository.saveAll(java.util.List.of(table, chair));
+
+        Page<Product> result = productRepository.searchActiveProducts(
+                null,
+                "river",
+                PageRequest.of(0, 10)
+        );
+
+        assertEquals(2, result.getTotalElements());
+        assertTrue(result.getContent().stream()
+                .allMatch(product -> product.isActive()));
+    }
+
+    @Test
+    void searchActiveProducts_shouldExcludeInactiveProducts() {
+        Product activeProduct = createProduct("Oak River Table", true);
+        Product inactiveProduct = createProduct("Oak River Table", false);
+
+        productRepository.saveAll(
+                java.util.List.of(activeProduct, inactiveProduct)
+        );
+
+        Page<Product> result = productRepository.searchActiveProducts(
+                null,
+                "Oak River Table",
+                PageRequest.of(0, 10)
+        );
+
+        assertEquals(1, result.getTotalElements());
+        assertTrue(result.getContent().getFirst().isActive());
     }
 
     private Product createProduct(String name, boolean active) {

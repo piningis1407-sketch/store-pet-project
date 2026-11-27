@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,5 +25,13 @@ class ProductControllerDeactivateTest extends BaseProductControllerTest {
     void deactivate_shouldReturnForbidden_whenUserIsNotAdmin() throws Exception {
         mockMvc.perform(delete("/api/products/1").with(csrf()))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deactivate_shouldReturnUnauthorized_whenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(delete("/api/products/1"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(productService);
     }
 }
